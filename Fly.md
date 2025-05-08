@@ -109,3 +109,116 @@ local ESPButton = MainTab:CreateButton({
 })
 
 
+local flying = false
+local moveDirection = Vector3.zero
+local bodyVelocity = nil
+local noclipConnection = nil
+local runConnection = nil
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRoot = character:WaitForChild("HumanoidRootPart")
+
+-- Buat GUI tombol arah
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FlyMobileGui"
+screenGui.ResetOnSpawn = false
+screenGui.Enabled = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local directions = {
+   {Name = "↑", Offset = Vector3.new(0, 0, -1), Pos = UDim2.new(0.9, 0, 0.6, 0)},
+   {Name = "↓", Offset = Vector3.new(0, 0, 1), Pos = UDim2.new(0.9, 0, 0.8, 0)},
+   {Name = "←", Offset = Vector3.new(-1, 0, 0), Pos = UDim2.new(0.85, 0, 0.7, 0)},
+   {Name = "→", Offset = Vector3.new(1, 0, 0), Pos = UDim2.new(0.95, 0, 0.7, 0)},
+   {Name = "↑↑", Offset = Vector3.new(0, 1, 0), Pos = UDim2.new(0.9, 0, 0.5, 0)},
+   {Name = "↓↓", Offset = Vector3.new(0, -1, 0), Pos = UDim2.new(0.9, 0, 0.9, 0)},
+}
+
+for _, dir in ipairs(directions) do
+   local button = Instance.new("TextButton")
+   button.Size = UDim2.new(0, 40, 0, 40)
+   button.Position = dir.Pos
+   button.Text = dir.Name
+   button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+   button.TextColor3 = Color3.new(1, 1, 1)
+   button.Font = Enum.Font.SourceSansBold
+   button.TextScaled = true
+   button.Parent = screenGui
+
+   button.MouseButton1Down:Connect(function()
+      moveDirection = moveDirection + dir.Offset
+   end)
+
+   button.MouseButton1Up:Connect(function()
+      moveDirection = moveDirection - dir.Offset
+   end)
+end
+
+-- Fungsi mulai fly
+local function startFly()
+   flying = true
+   screenGui.Enabled = true
+
+   bodyVelocity = Instance.new("BodyVelocity")
+   bodyVelocity.MaxForce = Vector3.new(1,1,1) * 100000
+   bodyVelocity.Velocity = Vector3.zero
+   bodyVelocity.Parent = humanoidRoot
+
+   -- Noclip aktif saat fly
+   noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+      for _, part in pairs(character:GetDescendants()) do
+         if part:IsA("BasePart") then
+            part.CanCollide = false
+         end
+      end
+   end)
+
+   -- Pergerakan
+   runConnection = game:GetService("RunService").RenderStepped:Connect(function()
+      bodyVelocity.Velocity = moveDirection.Unit * 50
+   end)
+end
+
+-- Fungsi stop fly
+local function stopFly()
+   flying = false
+   screenGui.Enabled = false
+   moveDirection = Vector3.zero
+
+   if bodyVelocity then
+      bodyVelocity:Destroy()
+      bodyVelocity = nil
+   end
+   if noclipConnection then
+      noclipConnection:Disconnect()
+      noclipConnection = nil
+   end
+   if runConnection then
+      runConnection:Disconnect()
+      runConnection = nil
+   end
+
+   -- Balikin colliders
+   for _, part in pairs(character:GetDescendants()) do
+      if part:IsA("BasePart") then
+         part.CanCollide = true
+      end
+   end
+end
+
+-- Toggle Fly dari Rayfield
+local FlyToggle = MainTab:CreateToggle({
+   Name = "Fly Mode (HP)",
+   CurrentValue = false,
+   Flag = "FlyHP",
+   Callback = function(value)
+      if value then
+         startFly()
+      else
+         stopFly()
+      end
+   end,
+})
+
+
