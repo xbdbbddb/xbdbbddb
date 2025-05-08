@@ -108,3 +108,15 @@ local ESPButton = MainTab:CreateButton({
    end,
 })
 
+
+
+local JoinRedButton = MainTab:CreateButton({
+   Name = "Join Red Team",
+   Callback = function()
+      local args = {
+         [1] = "Really red" -- Nama warna tim (case-sensitive)
+      }
+
+      game:GetService("ReplicatedStorage").TeamColor:InvokeServer(unpack(args))
+   end,
+})
