@@ -109,4 +109,9 @@ local ESPButton = MainTab:CreateButton({
 })
 
 
-
+local RingtaButton = MainTab:CreateButton({
+   Name = "Execute RINGTA Script",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/hbjrev/airweld.github.io/refs/heads/main/RINGTA.lua'))()
+   end,
+})
