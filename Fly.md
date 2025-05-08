@@ -110,18 +110,42 @@ local ESPButton = MainTab:CreateButton({
 
 
 
-local TeleportBankButton = MainTab:CreateButton({
-   Name = "Teleport to Bank",
-   Callback = function()
-      local player = game.Players.LocalPlayer
-      local character = player.Character or player.CharacterAdded:Wait()
-      local root = character:FindFirstChild("HumanoidRootPart")
-      local bank = workspace:FindFirstChild("Bank")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-      if root and bank and bank:IsA("BasePart") then
-         root.CFrame = bank.CFrame + Vector3.new(0, 5, 0) -- naik sedikit biar gak nyangkut
-      else
-         warn("Bank or HumanoidRootPart not found")
+-- Fungsi untuk ambil nama-nama pemain (selain LocalPlayer)
+local function getPlayerNames()
+   local names = {}
+   for _, p in pairs(Players:GetPlayers()) do
+      if p ~= LocalPlayer then
+         table.insert(names, p.Name)
       end
+   end
+   return names
+end
+
+-- Buat Dropdown (dan simpan referensinya)
+local TeleportDropdown
+TeleportDropdown = MainTab:CreateDropdown({
+   Name = "Teleport to Player",
+   Options = getPlayerNames(),
+   CurrentOption = nil,
+   Flag = "TeleportPlayer",
+   Callback = function(selectedName)
+      local targetPlayer = Players:FindFirstChild(selectedName)
+      if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+         local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+         local hrp = character:WaitForChild("HumanoidRootPart")
+         hrp.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0)
+      end
+   end,
+})
+
+-- Tombol untuk refresh daftar pemain
+local RefreshButton = MainTab:CreateButton({
+   Name = "Refresh Player List",
+   Callback = function()
+      local newList = getPlayerNames()
+      TeleportDropdown:UpdateOptions(newList)
    end,
 })
