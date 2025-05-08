@@ -109,13 +109,12 @@ local ESPButton = MainTab:CreateButton({
 })
 
 
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local selectedName = nil -- disimpan untuk digunakan saat tombol teleport ditekan
+local selectedName = nil
 
--- Fungsi ambil nama pemain (selain diri sendiri)
+-- Ambil semua nama pemain kecuali diri sendiri
 local function getPlayerNames()
    local names = {}
    for _, p in pairs(Players:GetPlayers()) do
@@ -126,7 +125,7 @@ local function getPlayerNames()
    return names
 end
 
--- Dropdown pilih pemain
+-- Dropdown untuk pilih pemain
 local TeleportDropdown = MainTab:CreateDropdown({
    Name = "Pilih Pemain",
    Options = getPlayerNames(),
@@ -137,22 +136,26 @@ local TeleportDropdown = MainTab:CreateDropdown({
    end,
 })
 
--- Tombol teleport ke pemain terpilih
-local TeleportButton = MainTab:CreateButton({
+-- Tombol untuk teleport ke pemain yang dipilih
+MainTab:CreateButton({
    Name = "Teleport ke Pemain",
    Callback = function()
       if selectedName then
          local target = Players:FindFirstChild(selectedName)
          if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
             local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-            myChar:WaitForChild("HumanoidRootPart").CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0)
+            local myHRP = myChar:WaitForChild("HumanoidRootPart")
+            local targetHRP = target.Character.HumanoidRootPart
+            myHRP.CFrame = targetHRP.CFrame + Vector3.new(2, 0, 0)
          end
+      else
+         warn("Belum pilih pemain.")
       end
    end,
 })
 
--- Tombol refresh daftar pemain
-local RefreshButton = MainTab:CreateButton({
+-- Tombol untuk refresh daftar pemain
+MainTab:CreateButton({
    Name = "Refresh Daftar Pemain",
    Callback = function()
       TeleportDropdown:UpdateOptions(getPlayerNames())
