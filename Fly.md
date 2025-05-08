@@ -109,18 +109,3 @@ local ESPButton = MainTab:CreateButton({
 })
 
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local selectedName = nil
-
--- Ambil semua nama pemain kecuali diri sendiri
-local function getPlayerNames()
-   local names = {}
-   for _, p in pairs(Players:GetPlayers()) do
-      if p ~= LocalPlayer then
-         table.insert(names, p.Name)
-      end
-   end
-   return names
-end
