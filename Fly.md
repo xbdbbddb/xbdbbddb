@@ -110,13 +110,18 @@ local ESPButton = MainTab:CreateButton({
 
 
 
-local JoinRedButton = MainTab:CreateButton({
-   Name = "Join Red Team",
+local TeleportBankButton = MainTab:CreateButton({
+   Name = "Teleport to Bank",
    Callback = function()
-      local args = {
-         [1] = "Really red" -- Nama warna tim (case-sensitive)
-      }
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local root = character:FindFirstChild("HumanoidRootPart")
+      local bank = workspace:FindFirstChild("Bank")
 
-      game:GetService("ReplicatedStorage").TeamColor:InvokeServer(unpack(args))
+      if root and bank and bank:IsA("BasePart") then
+         root.CFrame = bank.CFrame + Vector3.new(0, 5, 0) -- naik sedikit biar gak nyangkut
+      else
+         warn("Bank or HumanoidRootPart not found")
+      end
    end,
 })
