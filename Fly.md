@@ -113,7 +113,9 @@ local ESPButton = MainTab:CreateButton({
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Fungsi untuk ambil nama-nama pemain (selain LocalPlayer)
+local selectedName = nil -- disimpan untuk digunakan saat tombol teleport ditekan
+
+-- Fungsi ambil nama pemain (selain diri sendiri)
 local function getPlayerNames()
    local names = {}
    for _, p in pairs(Players:GetPlayers()) do
@@ -124,28 +126,35 @@ local function getPlayerNames()
    return names
 end
 
--- Buat Dropdown (dan simpan referensinya)
-local TeleportDropdown
-TeleportDropdown = MainTab:CreateDropdown({
-   Name = "Teleport to Player",
+-- Dropdown pilih pemain
+local TeleportDropdown = MainTab:CreateDropdown({
+   Name = "Pilih Pemain",
    Options = getPlayerNames(),
    CurrentOption = nil,
-   Flag = "TeleportPlayer",
-   Callback = function(selectedName)
-      local targetPlayer = Players:FindFirstChild(selectedName)
-      if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-         local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-         local hrp = character:WaitForChild("HumanoidRootPart")
-         hrp.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0)
+   Flag = "SelectedPlayer",
+   Callback = function(value)
+      selectedName = value
+   end,
+})
+
+-- Tombol teleport ke pemain terpilih
+local TeleportButton = MainTab:CreateButton({
+   Name = "Teleport ke Pemain",
+   Callback = function()
+      if selectedName then
+         local target = Players:FindFirstChild(selectedName)
+         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            myChar:WaitForChild("HumanoidRootPart").CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0)
+         end
       end
    end,
 })
 
--- Tombol untuk refresh daftar pemain
+-- Tombol refresh daftar pemain
 local RefreshButton = MainTab:CreateButton({
-   Name = "Refresh Player List",
+   Name = "Refresh Daftar Pemain",
    Callback = function()
-      local newList = getPlayerNames()
-      TeleportDropdown:UpdateOptions(newList)
+      TeleportDropdown:UpdateOptions(getPlayerNames())
    end,
 })
