@@ -63,3 +63,48 @@ local Slider = MainTab:CreateSlider({
       end
    end,
 })
+
+
+-- Button untuk mengatur JumpHeight
+local JumpSlider = MainTab:CreateSlider({
+   Name = "JumpHeight",
+   Range = {50, 300},
+   Increment = 10,
+   Suffix = "Power",
+   CurrentValue = 50,
+   Flag = "JumpSlider",
+   Callback = function(Value)
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      if character:FindFirstChild("Humanoid") then
+         character.Humanoid.JumpPower = Value
+      end
+   end,
+})
+
+-- Button untuk mengaktifkan ESP sederhana
+local ESPButton = MainTab:CreateButton({
+   Name = "Enable ESP",
+   Callback = function()
+      for _, player in pairs(game.Players:GetPlayers()) do
+         if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "ESP"
+            billboard.Size = UDim2.new(0, 100, 0, 40)
+            billboard.StudsOffset = Vector3.new(0, 2, 0)
+            billboard.AlwaysOnTop = true
+            billboard.Parent = player.Character.Head
+
+            local label = Instance.new("TextLabel")
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.Text = player.Name
+            label.TextColor3 = Color3.fromRGB(255, 0, 0)
+            label.TextScaled = true
+            label.Font = Enum.Font.SourceSansBold
+            label.Parent = billboard
+         end
+      end
+   end,
+})
+
