@@ -115,3 +115,18 @@ local RingtaButton = MainTab:CreateButton({
       loadstring(game:HttpGet('https://raw.githubusercontent.com/hbjrev/airweld.github.io/refs/heads/main/RINGTA.lua'))()
    end,
 })
+
+
+local DonjoButton = MainTab:CreateButton({
+   Name = "Auto bond by donjo",
+   Callback = function()
+   getgenv().BondFarmSetting = {
+		tweenDuration = 20,
+		AutoExecute = true,
+		CheckMissedBonds = true -- doesn't really work
+	}
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/DonjoScripts/Public-Scripts/refs/heads/Slap-Battles/TheFastestBondStealer.lua'))()
+
+   end,
+})
